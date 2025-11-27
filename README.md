@@ -14,11 +14,13 @@ This script automatically installs and maintains [udm-iptv](https://github.com/f
 
 UniFi Dream Machines reset parts of the filesystem on reboot and firmware updates. This script:
 
-1. Installs udm-iptv normally
-2. Creates a boot script in `/data/on_boot.d/` (which persists across reboots)
-3. Backs up your configuration to `/data/` (persistent storage)
-4. On each boot, the boot script checks if udm-iptv is installed and reinstalls if needed
-5. Restores your configuration automatically
+1. Installs the [on-boot-script](https://github.com/unifi-utilities/unifios-utilities/tree/main/on-boot-script-2.x) service (if not already installed)
+2. Installs igmpproxy (required for IPTV multicast)
+3. Installs udm-iptv normally
+4. Creates a boot script in `/data/on_boot.d/` (which persists across reboots)
+5. Backs up your configuration to `/data/` (persistent storage)
+6. On each boot, the boot script checks if udm-iptv is installed and reinstalls if needed
+7. Restores your configuration automatically
 
 ## Installation
 
@@ -60,6 +62,8 @@ UniFi Dream Machines reset parts of the filesystem on reboot and firmware update
 
 ## What Gets Installed
 
+- **on-boot-script service**: Boot script manager from [unifi-utilities](https://github.com/unifi-utilities/unifios-utilities/tree/main/on-boot-script-2.x) (if not already installed)
+- **igmpproxy**: Required for IPTV multicast traffic handling
 - **udm-iptv service**: The main IPTV service
 - **Boot script**: `/data/on_boot.d/20-udm-iptv.sh` - Runs on every boot
 - **Configuration backup**: `/data/udm-iptv.conf.backup` - Persistent storage
@@ -218,7 +222,8 @@ Silvester van der Leer
 
 ## Credits
 
-Based on the original [udm-iptv](https://github.com/fabianishere/udm-iptv) project by Fabian Mastenbroek.
+- Based on the original [udm-iptv](https://github.com/fabianishere/udm-iptv) project by Fabian Mastenbroek
+- Uses [on-boot-script](https://github.com/unifi-utilities/unifios-utilities/tree/main/on-boot-script-2.x) from [unifi-utilities](https://github.com/unifi-utilities/unifios-utilities) for boot persistence
 
 ## License
 

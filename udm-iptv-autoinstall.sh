@@ -27,6 +27,58 @@ if command -v unifi-os > /dev/null 2>&1; then
     exit 1
 fi
 
+# Function to install on-boot-script if needed
+# Credits: https://github.com/unifi-utilities/unifios-utilities/tree/main/on-boot-script-2.x
+install_on_boot_script() {
+    echo "Checking for on-boot-script support..."
+    
+    # Check if udm-boot service exists
+    if systemctl list-unit-files | grep -q udm-boot; then
+        echo "on-boot-script is already installed."
+        return 0
+    fi
+    
+    echo "on-boot-script not found. Installing..."
+    echo "Using installation method from unifi-utilities/unifios-utilities"
+    
+    # Use the official remote install script
+    if curl -fsL "https://raw.githubusercontent.com/unifi-utilities/unifios-utilities/HEAD/on-boot-script-2.x/remote_install.sh" | /bin/bash; then
+        echo "on-boot-script installed successfully."
+        return 0
+    else
+        echo "WARNING: Failed to install on-boot-script automatically."
+        echo "The boot persistence feature may not work without it."
+        echo "You can install it manually later by running:"
+        echo "  curl -fsL \"https://raw.githubusercontent.com/unifi-utilities/unifios-utilities/HEAD/on-boot-script-2.x/remote_install.sh\" | /bin/bash"
+        return 1
+    fi
+}
+
+# Function to install igmpproxy
+install_igmpproxy() {
+    echo "Checking for igmpproxy..."
+    
+    if command -v igmpproxy > /dev/null 2>&1; then
+        echo "igmpproxy is already installed."
+        return 0
+    fi
+    
+    echo "Installing igmpproxy..."
+    
+    # Update APT sources (best effort)
+    apt-get update 2>&1 1>/dev/null || true
+    
+    # Install igmpproxy
+    if apt-get install -q -y igmpproxy; then
+        echo "igmpproxy installed successfully."
+        return 0
+    else
+        echo "ERROR: Failed to install igmpproxy."
+        echo "igmpproxy is required for udm-iptv to function properly."
+        return 1
+    fi
+}
+
 # Function to install udm-iptv
 install_udm_iptv() {
     echo "Installing udm-iptv version ${UDM_IPTV_VERSION}..."
@@ -107,6 +159,15 @@ fi
 
 log "udm-iptv not found, installing..."
 
+# Install igmpproxy if not present
+if ! command -v igmpproxy > /dev/null 2>&1; then
+    log "Installing igmpproxy..."
+    apt-get update 2>&1 1>/dev/null || true
+    DEBIAN_FRONTEND=noninteractive apt-get install -q -y igmpproxy 2>&1 1>/dev/null || log "Failed to install igmpproxy"
+else
+    log "igmpproxy is already installed"
+fi
+
 dest=$(mktemp -d)
 
 # Download udm-iptv package
@@ -176,6 +237,12 @@ echo "  UDM-IPTV Auto-Installation Script"
 echo "  Version: ${UDM_IPTV_VERSION}"
 echo "================================================"
 echo
+
+# Install on-boot-script prerequisite
+install_on_boot_script
+
+# Install igmpproxy prerequisite
+install_igmpproxy
 
 # Install udm-iptv
 install_udm_iptv

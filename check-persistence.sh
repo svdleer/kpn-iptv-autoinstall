@@ -149,6 +149,17 @@ check_config_active() {
     fi
 }
 
+check_igmpproxy_installed() {
+    print_check "igmpproxy is installed"
+    if command -v igmpproxy > /dev/null 2>&1; then
+        print_pass
+    else
+        print_fail
+        print_info "igmpproxy is not installed"
+        print_info "Install with: apt-get install igmpproxy"
+    fi
+}
+
 check_package_installed() {
     print_check "udm-iptv package is installed"
     if dpkg -l | grep -q udm-iptv; then
@@ -193,12 +204,18 @@ check_service_active() {
 }
 
 check_data_partition() {
-    print_check "/data partition is mounted"
-    if mountpoint -q /data; then
+    print_check "/data directory exists and is writable"
+    if [ -d /data ] && [ -w /data ]; then
         print_pass
     else
         print_fail
-        print_info "/data partition is not mounted - this is critical!"
+        if [ ! -d /data ]; then
+            print_info "/data directory does not exist - this is critical!"
+            print_info "Create with: mkdir -p /data"
+        else
+            print_info "/data directory is not writable"
+            print_info "Fix with: chmod 755 /data"
+        fi
     fi
 }
 
@@ -209,7 +226,43 @@ check_on_boot_dir() {
     else
         print_fail
         print_info "Boot script directory is missing"
-        print_info "Create with: mkdir -p /data/on_boot.d"
+        print_info "Install on-boot-script with:"
+        print_info "  curl -fsL \"https://raw.githubusercontent.com/unifi-utilities/unifios-utilities/HEAD/on-boot-script-2.x/remote_install.sh\" | /bin/bash"
+    fi
+}
+
+check_udm_boot_service() {
+    print_check "udm-boot service is installed"
+    if systemctl list-unit-files | grep -q udm-boot; then
+        print_pass
+    else
+        print_fail
+        print_info "on-boot-script service not found"
+        print_info "This is required for boot persistence"
+        print_info "Install with:"
+        print_info "  curl -fsL \"https://raw.githubusercontent.com/unifi-utilities/unifios-utilities/HEAD/on-boot-script-2.x/remote_install.sh\" | /bin/bash"
+    fi
+}
+
+check_udm_boot_enabled() {
+    print_check "udm-boot service is enabled"
+    if systemctl is-enabled --quiet udm-boot 2>/dev/null; then
+        print_pass
+    else
+        print_warn
+        print_info "udm-boot service is not enabled"
+        print_info "Enable with: systemctl enable udm-boot"
+    fi
+}
+
+check_udm_boot_active() {
+    print_check "udm-boot service is running"
+    if systemctl is-active --quiet udm-boot 2>/dev/null; then
+        print_pass
+    else
+        print_warn
+        print_info "udm-boot service is not running"
+        print_info "Start with: systemctl start udm-boot"
     fi
 }
 
@@ -271,6 +324,10 @@ main() {
     check_data_partition
     check_on_boot_dir
     echo
+    check_udm_boot_service
+    check_udm_boot_enabled
+    check_udm_boot_active
+    echo
     check_boot_script_exists
     check_boot_script_executable
     check_boot_script_content
@@ -279,6 +336,7 @@ main() {
     check_config_active
     check_config_matches
     echo
+    check_igmpproxy_installed
     check_package_installed
     check_service_exists
     check_service_enabled
