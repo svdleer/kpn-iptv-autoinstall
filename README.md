@@ -44,7 +44,7 @@ UniFi Dream Machines reset parts of the filesystem on reboot and firmware update
 
 3. **Download and run the auto-install script**:
    ```bash
-   curl -sS -L -o /tmp/udm-iptv-autoinstall.sh https://raw.githubusercontent.com/svdleer/kpn-iptv-reinstall/main/udm-iptv-autoinstall.sh
+   curl -sS -L -o /tmp/udm-iptv-autoinstall.sh https://raw.githubusercontent.com/svdleer/kpn-iptv-autoinstall/main/udm-iptv-autoinstall.sh
    chmod +x /tmp/udm-iptv-autoinstall.sh
    /tmp/udm-iptv-autoinstall.sh
    ```
@@ -115,7 +115,7 @@ journalctl -t udm-iptv
 ### Check Persistence Status
 ```bash
 # Download and run the check script
-curl -sS -L -o /tmp/check-persistence.sh https://raw.githubusercontent.com/svdleer/kpn-iptv-reinstall/main/check-persistence.sh
+curl -sS -L -o /tmp/check-persistence.sh https://raw.githubusercontent.com/svdleer/kpn-iptv-autoinstall/main/check-persistence.sh
 chmod +x /tmp/check-persistence.sh
 /tmp/check-persistence.sh
 ```
@@ -146,7 +146,7 @@ apt-get remove udm-iptv
 The `check-persistence.sh` script verifies your installation:
 
 ```bash
-curl -sS -L https://raw.githubusercontent.com/svdleer/kpn-iptv-reinstall/main/check-persistence.sh | sh
+curl -sS -L https://raw.githubusercontent.com/svdleer/kpn-iptv-autoinstall/main/check-persistence.sh | sh
 ```
 
 This script checks:
@@ -165,7 +165,7 @@ Run this after installation or after a reboot to verify everything is working co
 
 1. **Run the persistence check script first**:
    ```bash
-   curl -sS -L https://raw.githubusercontent.com/svdleer/kpn-iptv-reinstall/main/check-persistence.sh | sh
+   curl -sS -L https://raw.githubusercontent.com/svdleer/kpn-iptv-autoinstall/main/check-persistence.sh | sh
    ```
 
 2. Check if boot script ran:

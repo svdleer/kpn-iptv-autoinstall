@@ -11,12 +11,20 @@
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 
-# Color codes for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+# Color codes for output (disabled in non-interactive mode)
+if [ -t 1 ]; then
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    YELLOW='\033[1;33m'
+    BLUE='\033[0;34m'
+    NC='\033[0m' # No Color
+else
+    RED=''
+    GREEN=''
+    YELLOW=''
+    BLUE=''
+    NC=''
+fi
 
 # Check counters
 CHECKS_PASSED=0
@@ -56,7 +64,7 @@ print_warn() {
 }
 
 print_info() {
-    echo "${BLUE}ℹ${NC} $1"
+    printf "%s %s\n" "${BLUE}ℹ${NC}" "$1"
 }
 
 print_summary() {
